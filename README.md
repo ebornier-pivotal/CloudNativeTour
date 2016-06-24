@@ -13,7 +13,7 @@
 - [Lab 2 - Introspection, Monitoring, and Metrics using Spring Boot Actuator](#lab-2-introspection-monitoring-and-metrics-using-spring-boot-actuator)
 	- [Set up the Actuator](#set-up-the-actuator)
 	- [Introspection Endpoints](#introspection-endpoints)
-	- [Build and Version Control Info](#build-and-version-control-info)
+	- [Build and Version Control Info -- NOT WORKING NOW](#build-and-version-control-info-not-working-now)
 	- [Health Indicators](#health-indicators)
 	- [Metrics](#metrics)
 - [Lab 3 - Composing Cloud Native Apps with Spring Cloud and Netflix OSS](#lab-3-composing-cloud-native-apps-with-spring-cloud-and-netflix-oss)
@@ -23,16 +23,16 @@
 	- [Fortune Service](#fortune-service)
 	- [Fortune UI](#fortune-ui)
 	- [Hystrix Dashboard](#hystrix-dashboard)
-- [Lab 4 - From Zero to Pushing Your First Application](#lab-4-from-zero-to-pushing-your-first-application)
+- [Lab 4 - From Zero to Pushing Your First Application to Pivotal Cloud Foundry](#lab-4-from-zero-to-pushing-your-first-application-to-pivotal-cloud-foundry)
 	- [Target](#target)
 	- [Build and Push!](#build-and-push)
-- [Lab 5 - Binding to Cloud Foundry Services](#lab-5-binding-to-cloud-foundry-services)
+- [Demo - Lab 5 - Binding to Cloud Foundry Services](#demo-lab-5-binding-to-cloud-foundry-services)
 	- [A Bit of Review](#a-bit-of-review)
 	- [The Services Marketplace](#the-services-marketplace)
-	- [Creating and Binding to a Service Instance](#creating-and-binding-to-a-service-instance)
-- [Lab 6 - Monitoring Applications](#lab-6-monitoring-applications)
+	- [Demo - Creating and Binding to a Service Instance](#demo-creating-and-binding-to-a-service-instance)
+- [Demo - Lab 6 - Monitoring Applications with Pivotal Cloud Foundry](#demo-lab-6-monitoring-applications-with-pivotal-cloud-foundry)
 	- [Health](#health)
-- [Lab 7 - Push Cloud Native Apps to Cloud Foundry](#lab-7-push-cloud-native-apps-to-cloud-foundry)
+- [Lab 7 - Push Cloud Native Apps to Pivotal Cloud Foundry](#lab-7-push-cloud-native-apps-to-pivotal-cloud-foundry)
 	- [Build and Push!](#build-and-push-1)
 
 <!-- tocstop -->
@@ -53,15 +53,15 @@ Artifact
 hello-spring-boot
 ```
 
-3. In the Dependencies section, search for web, and choose Web from the autocomplete menu.
+3. In the Dependencies section, search for web, and choose **Web** from the autocomplete menu.
 
 4. Click the Generate Project button. Your browser will download a zip file. Unpack that zip file at **$COURSE_HOME/labs/initial.**
 
 5. Import the project’s pom.xml into your editor/IDE of choice.
 
-6. Add a @RestController annotation to the class io.pivotal.spring.HelloSpringBootApplication.
+6. Add a ```@RestController``` annotation to the class ```io.pivotal.spring.HelloSpringBootApplication```.
 
-7. Add the following request handler to the class io.pivotal.spring.HelloSpringBootApplication:
+7. Add the following request handler to the class ```io.pivotal.spring.HelloSpringBootApplication```:
 
 
 ```java
@@ -264,7 +264,7 @@ http://localhost:8080/trace
 * Displays trace information (by default the last few HTTP requests).
 
 
-## Build and Version Control Info
+## Build and Version Control Info -- NOT WORKING NOW
 
 Spring Boot provides an endpoint (http://localhost:8080/info) that allows the exposure of arbitrary metadata.
 
@@ -284,7 +284,8 @@ One thing that it does well is expose information about the specific build and v
 
 **NOTE**
 The path ../../../.git refers to the .git directory at the root of the course materials.
-Add the following properties to src/main/resources/application.yml:
+
+2. Add the following properties to src/main/resources/application.yml:
 
 ```code
 info:
@@ -297,19 +298,19 @@ info:
 
 These will add the project’s Maven coordinates to the /info endpoint. The Spring Boot Maven plugin will cause them to automatically be replaced in the assembled JAR.
 
-2. Build the application:
+3. Build the application:
 
 ```bash
 $ ./mvnw package
 ```
 
-3. Run the application:
+4. Run the application:
 
 ```bash
 $ java -jar target/hello-spring-boot-0.0.1-SNAPSHOT.jar
 ```
 
-4. Visit the application in the browser (http://localhost:8080/info), and verify that the output is similar to the following:
+5. Visit the application in the browser (http://localhost:8080/info), and verify that the output is similar to the following:
 
 ```code
 {
@@ -418,11 +419,9 @@ public class GreetingService {
 
 This class is using the @Autowired CounterService to count the number of times that the getGreeting() method has been invoked.
 
-2. Refactor the contents of the class
+2. Refactor the contents of the class ```io.pivotal.spring.HelloSpringBootApplication```:
 
 ```java
-io.pivotal.spring.HelloSpringBootApplication:
-
 @Autowired
 private GreetingService greetingService;
 
@@ -469,7 +468,7 @@ ADD IMAGE
 We’ll leverage libraries and services from Spring Cloud and Netflix OSS to help us compose the system.
 
 ## Bootstrapping
-
+gi
 
 1. Choose File → Import:
 
@@ -487,12 +486,11 @@ sts import 3
 
 First we’ll create a Spring Cloud Config Server to distribute shared configuration across our distributed system. This configuration will form the basis of how the entire system will compose.
 
-1. In the fortune-teller-config-server module, add a @EnableConfigServer annotation to the class io.spring.cloud.samples.fortuneteller.configserver.Application.
+1. In the fortune-teller-config-server module, add a ```@EnableConfigServer``` annotation to the class ```io.spring.cloud.samples.fortuneteller.configserver.Application```.
 
 2. Paste the following configuration properties into the file src/main/resources/application.yml:
 
 ```code
-
 server:
   port: 8888
 
@@ -524,8 +522,8 @@ config server output
 
 Next we’ll create a Eureka service registry using Spring Cloud Netflix. This server will act as the address book our UI application will use to locate the Fortune Service.
 
-1. In the fortune-teller-eureka module, add a @EnableEurekaServer annotation to the class
-io.spring.cloud.samples.fortuneteller.eureka.Application.
+1. In the fortune-teller-eureka module, add a ```@EnableEurekaServer``` annotation to the class
+```io.spring.cloud.samples.fortuneteller.eureka.Application```.
 
 2. Paste the following configuration properties into the file src/main/resources/application.yml:
 
@@ -555,45 +553,45 @@ eureka 1
 
 Now that our Spring Cloud/Netflix OSS infrastructure is bootstrapped, we’ll begin development of our first microservice. The Fortune Service will serve up a list of all fortune cookie fortunes present in its database or a single random fortune.
 
-1. In the fortune-teller-fortune-service module, create the package io.spring.cloud.samples.fortuneteller.fortuneservice.domain.
+1. In the fortune-teller-fortune-service module, create the package `io.spring.cloud.samples.fortuneteller.fortuneservice.domain`.
 
-2. Create a JPA domain class, io.spring.cloud.samples.fortuneteller.fortuneservice.domain.Fortune. Into that class, paste the following code:
+2. Create a JPA domain class, `io.spring.cloud.samples.fortuneteller.fortuneservice.domain.Fortune`. Into that class, paste the following code:
 
 ```java
-@Entity
-@Table(name = "fortunes")
-public class Fortune {
+		@Entity
+		@Table(name = "fortunes")
+		public class Fortune {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+		    @Id
+		    @GeneratedValue
+		    private Long id;
 
-    @Column(nullable = false)
-    private String text;
+		    @Column(nullable = false)
+		    private String text;
 
-    public Long getId() {
-        return id;
-    }
+		    public Long getId() {
+		        return id;
+		    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+		    public void setId(Long id) {
+		        this.id = id;
+		    }
 
-    public String getText() {
-        return text;
-    }
+		    public String getText() {
+		        return text;
+		    }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-}
+		    public void setText(String text) {
+		        this.text = text;
+		    }
+		}
 ```
 
 Add the appropriate imports using the IDE’s quick fix feature.
 
 This class represents the domain model for a fortune, having an unique identifier and the fortune’s text.
 
-3. Next, create the package io.spring.cloud.samples.fortuneteller.fortuneservice.repositories.
+3. Next, create the package ```io.spring.cloud.samples.fortuneteller.fortuneservice.repositories```.
 
 4. Create a Spring Data JPA repository interface, io.spring.cloud.samples.fortuneteller.fortuneservice.repositories.FortuneRepository. Into that class, paste the following code:
 
@@ -688,10 +686,10 @@ fortune service output
 ## Fortune UI
 Now that our Fortune microservice is running, we’ll begin development of our second microservice. The Fortune UI will serve up a AngularJS single page application that consumes the fortune service.
 
-1. In the fortune-teller-ui module, create the package io.spring.cloud.samples.fortuneteller.ui.services.fortunes. This package will contain our integration with the fortune service.
+1. In the fortune-teller-ui module, create the package ```io.spring.cloud.samples.fortuneteller.ui.services.fortunes```. This package will contain our integration with the fortune service.
 
 2. Create the POJO io.spring.cloud.samples.fortuneteller.ui.services.fortunes.Fortune. Into that class, paste the following code:
-
+///BORING
 ```java
 public class Fortune {
     private Long id;
@@ -727,7 +725,9 @@ We will use this class to unmarshal the response from the fortune service.
 
 3. Create the Spring Bean
 
-io.spring.cloud.samples.fortuneteller.ui.services.fortunes.FortuneService. Into that class, paste the following code:
+```io.spring.cloud.samples.fortuneteller.ui.services.fortunes.FortuneService```.
+
+ Into that class, paste the following code:
 
 ```java
 @Service
@@ -746,14 +746,22 @@ public class FortuneService {
     }
 }
 ```
+///
+<dependency>
+	<groupId>com.netflix.hystrix</groupId>
+	<artifactId>hystrix-javanica</artifactId>
+	<version>1.5.3</version>
+</dependency>
 
 Add the appropriate imports using the IDE’s quick fix feature.
 
 This class is our integration point with the fortune service. It uses a special RestTemplate bean that integrates with Ribbon from Netflix OSS. The argument passed to getForObject, http://fortunes/random, will be resolved by Ribbon to the actual address of the fortune service. This method is also protected by a Hystrix circuit breaker using the @HystrixCommand annotation. If the circuit is tripped to open (due to an unhealthy fortune service), the fallbackFortune method will return a dummy response.
 
-4. Next, create the package io.spring.cloud.samples.fortuneteller.ui.controllers.
+4. Next, create the package ```io.spring.cloud.samples.fortuneteller.ui.controllers```.
 
-5. Create a Spring MVC Controller class, io.spring.cloud.samples.fortuneteller.ui.controllers.UiController. Into that class, paste the following code:
+5. Create a Spring MVC Controller class, ```io.spring.cloud.samples.fortuneteller.ui.controllers.UiController```.
+
+Into that class, paste the following code:
 
 ```java
 @RestController
@@ -851,7 +859,7 @@ hystrix dashboard 1
 
 hystrix dashboard 2
 
-# Lab 4 - From Zero to Pushing Your First Application
+# Lab 4 - From Zero to Pushing Your First Application to Pivotal Cloud Foundry
 ## Target
 
 1. If you haven’t already, download the latest release of the Cloud Foundry CLI from https://github.com/cloudfoundry/cli/releases for your operating system and install it.
@@ -978,7 +986,7 @@ last uploaded: Fri Feb 13 15:43:08 UTC 2015
 
 Be sure to click on the “information icon” in the top right-hand corner of the UI. This gives you important information about the state of the currently running Spring Music instance, including what Spring Profiles are turned on and what Cloud Foundry services are bound. It will become important in the next lab!
 
-# Lab 5 - Binding to Cloud Foundry Services
+# Demo - Lab 5 - Binding to Cloud Foundry Services
 The Spring Music application was designed to illustrate the ease with which various types of data services can be bound to and utilized by Spring applications running on Cloud Foundry. In this lab, we’ll be binding the application to both PostgreSQL and MongoDB databases.
 
 Cloud Foundry services are managed through two primary types of operations:
@@ -1019,7 +1027,7 @@ and you’ll see the same service/plan/description listing in the browser:
 ///PWS Marketplace
 
 
-## Creating and Binding to a Service Instance
+## Demo - Creating and Binding to a Service Instance
 
 1. Let’s begin by creating a PostgreSQL instance provided by ElephantSQL. From the CLI, let’s create a free ElephantSQL service instance:
 
@@ -1098,7 +1106,7 @@ manage spring music db 2
 
 manage spring music db 3
 
-# Lab 6 - Monitoring Applications
+# Demo - Lab 6 - Monitoring Applications with Pivotal Cloud Foundry
 
 Cloud Foundry provides several built-in mechanisms that allow us to monitor our applications' state changes and behavior. Additionally, Cloud Foundry actively monitors the health of our application processes and will restart them should they crash. In this lab, we’ll explore a few of these mechanisms.
 
@@ -1231,25 +1239,31 @@ You can try various things like refreshing the browser and triggering stop/start
 
 ## Health
 
-Show scale demo
+1. Demonstrate scale demo application
 
-# Lab 7 - Push Cloud Native Apps to Cloud Foundry
+# Lab 7 - Push Cloud Native Apps to Pivotal Cloud Foundry
 
 ## Build and Push!
 
 1. Return to the Fortune Teller application directory that you finished in Lab 3:
 
+```bash
 $ cd $COURSE_HOME/labs/initial/fortune-teller
+```
 
 2. Using Maven, build and package the application:
 
+```bash
 $ mvn package
-
+```
 Maven will automatically download all of Fortune Teller's dependencies. This may take a few moments.
 
 3. Push the Spring Cloud services:
 
+```bash
 $ cf push -f manifest-services.yml
+```
+
 This will push the Spring Cloud Config Server, a Eureka server, and a Hystrix Dashboard, all with random routes.
 
 4. Edit scripts/create_services.sh to add the random routes that were generated for you:
