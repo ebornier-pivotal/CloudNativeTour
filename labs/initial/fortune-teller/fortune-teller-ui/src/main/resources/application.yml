@@ -1,0 +1,10 @@
+server:
+  port: 8081
+
+eureka:
+  client:
+    registryFetchIntervalSeconds: 5
+
+fortunes:
+  ribbon:
+    ServerListRefreshInterval: 5000
