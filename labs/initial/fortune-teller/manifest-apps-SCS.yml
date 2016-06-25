@@ -1,0 +1,23 @@
+---
+memory: 384M
+instances: 1
+buildpack: java_buildpack
+applications:
+- name: fortune-service
+  host: fortunes-${random-word}
+  path: fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+  services:
+  - fortunes-db
+  - config-service
+  - service-registry
+- name: fortune-ui
+  host: fortunes-ui-${random-word}
+  path: fortune-teller-ui/target/fortune-teller-ui-0.0.1-SNAPSHOT.jar
+  services:
+  - config-service
+  - service-registry
+  - circuit-breaker
+env:
+  #SPRING_PROFILES_ACTIVE: pcf
+  CF_TARGET: https://api.run.pivotal.io
+  # see docs - https://docs.pivotal.io/spring-cloud-services/config-server/writing-client-applications.html
