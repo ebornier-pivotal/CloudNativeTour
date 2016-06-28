@@ -1302,7 +1302,7 @@ This will push the fortunes service and the ui application.
 
 <img src="images/fortunes_1.png" alt="Spring Music NS">
 
-8. Now, in another browser tab, access the Hystrix Dashboard at the route that was created for you. Enter the route for the UI application and click the “Monitor Stream.”
+8. Now, in another browser tab, access the Hystrix Dashboard at the route that was created for you. Enter the route for the UI application with /hystrix.stream and click the “Monitor Stream.”
 
 <img src="images/fortunes_2.png" alt="Spring Music NS">
 

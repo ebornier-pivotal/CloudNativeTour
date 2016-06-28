@@ -4,14 +4,14 @@ instances: 1
 buildpack: java_buildpack
 applications:
 - name: fortune-service
-  host: fortunes-${random-word}
+  host: fortune-${random-word}
   path: fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
   services:
   - fortune-db
   - config-service
   - service-registry
 - name: fortune-ui
-  host: fortunes-ui-${random-word}
+  host: fortune-ui-${random-word}
   path: fortune-teller-ui/target/fortune-teller-ui-0.0.1-SNAPSHOT.jar
   services:
   - config-service
