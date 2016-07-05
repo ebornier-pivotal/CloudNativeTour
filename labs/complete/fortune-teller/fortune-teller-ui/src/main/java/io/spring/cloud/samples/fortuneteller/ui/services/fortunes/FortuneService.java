@@ -11,7 +11,7 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 @Service
 public class FortuneService {
 
-	// In Brixton a RestTemplate is not auto injected
+	// In Spring Cloud Brixton release and after, a RestTemplate is not auto injected
 	@Bean
 	@LoadBalanced
 	public RestTemplate restTemplate() {
