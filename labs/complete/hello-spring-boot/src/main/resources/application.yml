@@ -10,6 +10,9 @@ info:
 endpoints:
   health:
     sensitive: false
+  shutdown:
+    enabled: true
+    sensitive: false
 
 ---
 

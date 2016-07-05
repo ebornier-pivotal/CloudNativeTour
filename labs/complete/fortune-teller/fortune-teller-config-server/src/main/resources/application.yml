@@ -6,4 +6,5 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/mstine/config-repo.git
+          uri: https://github.com/ebornier-pivotal/CloudNativeTour-config.git
+          #searchPaths: config-repo # if you need a subfolder 
