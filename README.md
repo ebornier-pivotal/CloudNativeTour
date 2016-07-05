@@ -17,6 +17,7 @@
 	- [Health Indicators](#health-indicators)
 	- [Metrics](#metrics)
 - [Lab 3 - Composing Cloud Native Apps with Spring Cloud and Netflix OSS](#lab-3-composing-cloud-native-apps-with-spring-cloud-and-netflix-oss)
+	- [Overall architecture](#overall-architecture)
 	- [Bootstrapping](#bootstrapping)
 	- [Config Server](#config-server)
 	- [Eureka Server](#eureka-server)
@@ -31,6 +32,8 @@
 	- [The Services Marketplace](#the-services-marketplace)
 	- [Demo - Creating and Binding to a Service Instance](#demo-creating-and-binding-to-a-service-instance)
 - [Demo - Lab 6 - Monitoring Applications with Pivotal Cloud Foundry](#demo-lab-6-monitoring-applications-with-pivotal-cloud-foundry)
+	- [Events](#events)
+	- [Logs](#logs)
 	- [Health](#health)
 - [Lab 7 - Push Cloud Native Apps to Pivotal Cloud Foundry](#lab-7-push-cloud-native-apps-to-pivotal-cloud-foundry)
 	- [Build and Push!](#build-and-push-1)
@@ -380,16 +383,16 @@ $ java -jar target/hello-spring-boot-0.0.1-SNAPSHOT.jar
 
 ```json
 {
-  status: "UP",
-  flapping: {
-    status: "UP",
-    flapper: "ok",
-    random: 69
+  "status": "UP",
+  "flapping": {
+    "status": "UP",
+    "flapper": "ok",
+    "random": 69
   },
-  diskSpace: {
-    status: "UP",
-    free: 113632186368,
-    threshold: 10485760
+  "diskSpace": {
+    "status": "UP",
+    "free": 113632186368,
+    "threshold": 10485760
   }
 }
 ```
@@ -468,6 +471,16 @@ In this lab we’re going to build a Fortune Teller application from two microse
 
 We’ll leverage libraries and services from Spring Cloud and Netflix OSS to help us compose the system.
 
+## Overall architecture
+
+The project will use the following
+- Spring Cloud Config Server, http://localhost:8888
+- fortune-ui, http://localhost:8081
+- Eureka Registry Service, http://localhost:8761/eureka
+- fortune-service (possibly multiple), http://localhost:8080, http://localhost:8090
+- Hystrix Dashboard, http://localhost:7979
+
+
 ## Bootstrapping
 
 1. Choose File → Import:
@@ -507,6 +520,28 @@ These properties tell the Config Server to listen on port 8888 and to source its
 3. Browse the file
 https://github.com/mstine/config-repo/blob/master/application.yml#L1-L18.
 These lines tell all applications using the cloud Spring profile how to connect to and register themselves with Eureka.
+```yml
+eureka:
+  ...
+  client:
+    serviceUrl:
+      defaultZone: ${vcap.services.service-registry.credentials.uri:http://127.0.0.1:8761}/eureka/
+
+```
+`This is very important !` The config server will be shared by all the microservices, and as they read from it, they will find their Eureka target URL.
+You can see a default value of http://localhost:8761/eureka/ and otherwise a lookup in the environment for `vcap.services.service-registry.credentials.uri` which will resolve when running later on Cloud Foundry using the `service-registry` as the name for the Eureka Service Registry service name.
+
+The microservices such as *fortune-ui* will lookup that config server using a `bootstrap.yml` early in their startup sequence (before `application.yml`) as in
+```yml
+spring:
+  application:
+    name: ui
+  cloud:
+    config:
+      uri: ${vcap.services.config-service.credentials.uri:http://localhost:8888}
+```
+
+You can see a default value of http://localhost:8888 and otherwise a lookup in the environment for `vcap.services.config-service.credentials.uri` which will resolve when running later on Cloud Foundry using the `config-service` as the name for the Config Server service name.
 
 4. In the Boot Dashboard, right click on fortune-teller-config-server and choose (Re)start:
 
@@ -517,6 +552,28 @@ These lines tell all applications using the cloud Spring profile how to connect 
 config server output
 
 6. Note that the response JSON defines a Spring PropertySource that contains Eureka configuration consistent with what you saw in the Git repository.
+
+To validate the config server, you can access */ui/default/* (http://localhost:8888/ui/default) which is the URL that the config server client would call to retrieve the configuration for a an application name `ui` and using a `default` Spring profile, and accessing the `master` branch of the config.
+Read more at http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_quick_start
+
+```bash
+curl -X GET http://localhost:8888/ui/default
+```
+
+You can also run your `fortune-ui` application that will access the config server to resolve:
+```java
+@RestController
+public class UiController {
+
+  @Value("${greeting}")//from config server
+  String greeting;
+
+	@RequestMapping("/greeting")
+	public String getGreeting() {
+		return greeting;
+}
+
+```
 
 ## Eureka Server
 
@@ -541,7 +598,7 @@ eureka:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 ```
 
-These properties tell the Eureka Server to listen on port 8761 and to configure itself in what is essentially “standalone” mode.
+These properties tell the Eureka Server to listen on port 8761 and to configure itself in what is essentially "standalone" mode.
 
 3. As before, in the Boot Dashboard, right click on fortune-teller-eureka and choose (Re)start.
 
@@ -637,7 +694,7 @@ Add the appropriate imports using the IDE’s quick fix feature.
 
 This class provides the two REST endpoints of our microservice. The randomFortune method provides a PageRequest to limit the returned results to one.
 
-8. Add @EnableJpaRepositories (to enable the Spring Data JPA repository we created) and @EnableDiscoveryClient (to switch on Eureka registration) annotations to io.spring.cloud.samples.fortuneteller.fortuneservice.Application.
+8. Add `@EnableJpaRepositories` (to enable the Spring Data JPA repository we created) and `@EnableDiscoveryClient` (to switch on Eureka registration) annotations to io.spring.cloud.samples.fortuneteller.fortuneservice.Application.
 
 Paste the following configuration properties into the file src/main/resources/bootstrap.yml:
 
@@ -675,7 +732,7 @@ spring:
     database: POSTGRESQL
 ```
 
-This configuration specifies the model to DDL setting to be used by Hibernate, as well as the Hibernate dialects to be used for local development and cloud.
+This configuration specifies the model to DDL setting to be used by Hibernate, as well as the Hibernate dialects to be used for local development and cloud profile.
 
 10. As before, in the Boot Dashboard, right click on fortune-teller-fortune-service and choose (Re)start.
 
@@ -685,10 +742,16 @@ After the service has been running for ten seconds, refresh your Eureka browser 
 
 <img src="images/fortune_service_output.png" alt="Spring Music NS">
 
+You can also start multiple such application instances:
+```bash
+java -Dserver.port=8090 target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+```
+and observe Eureka and service load balancing later thru Ribbon RestTemplate.
+
 ## Fortune UI
 Now that our Fortune microservice is running, we’ll begin development of our second microservice. The Fortune UI will serve up a AngularJS single page application that consumes the fortune service.
 
-1. In the fortune-teller-ui module, create the package ```io.spring.cloud.samples.fortuneteller.ui.services.fortunes```. This package will contain our integration with the fortune service.
+1. In the fortune-teller-ui module, create the package `io.spring.cloud.samples.fortuneteller.ui.services.fortunes`. This package will contain our integration with the fortune service.
 
 2. Create the POJO io.spring.cloud.samples.fortuneteller.ui.services.fortunes.Fortune. Into that class, paste the following code:
 
@@ -751,7 +814,7 @@ public class FortuneService {
 
 Add the appropriate imports using the IDE’s quick fix feature.
 
-This class is our integration point with the fortune service. It uses a special RestTemplate bean that integrates with Ribbon from Netflix OSS. The argument passed to getForObject, http://fortunes/random, will be resolved by Ribbon to the actual address of the fortune service. This method is also protected by a Hystrix circuit breaker using the @HystrixCommand annotation. If the circuit is tripped to open (due to an unhealthy fortune service), the fallbackFortune method will return a dummy response.
+This class is our integration point with the fortune service. It uses a **special RestTemplate bean that integrates with Ribbon from Netflix OSS**. The argument passed to getForObject, http://fortunes/random, will be resolved by Ribbon to the actual address of the fortune service. This method is also protected by a **Hystrix circuit breaker** using the `@HystrixCommand` annotation. If the circuit is tripped to open (due to an unhealthy fortune service), the fallbackFortune method will return a dummy response.
 
 4. Next, create the package ```io.spring.cloud.samples.fortuneteller.ui.controllers```.
 
@@ -777,7 +840,7 @@ public class UiController {
 
 This class provides the REST endpoint that will be consumed by our AngularJS UI.
 
-7. Add @EnableCircuitBreaker (to switch on Hystrix circuit breakers) and @EnableDiscoveryClient (to switch on Eureka registration) annotations to io.spring.cloud.samples.fortuneteller.ui.Application.
+7. Add `@EnableCircuitBreaker` (to switch on Hystrix circuit breakers) and `@EnableDiscoveryClient` (to switch on Eureka registration) annotations to io.spring.cloud.samples.fortuneteller.ui.Application.
 
 8. Paste the following configuration properties into the file src/main/resources/bootstrap.yml:
 
@@ -821,7 +884,7 @@ After the service has been running for ten seconds, refresh your Eureka browser 
 
 Finally, we’ll add one more piece of infrastructure — a dashboard that allows us to monitor our circuit breakers — using Spring Cloud Netflix.
 
-1. In the fortune-teller-hystrix-dashboard module, add @EnableHystrixDashboard and @Controller annotations to the class io.spring.cloud.samples.fortuneteller.hystrixdashboard.Application.
+1. In the fortune-teller-hystrix-dashboard module, add `@EnableHystrixDashboard` and `@Controller` annotations to the class io.spring.cloud.samples.fortuneteller.hystrixdashboard.Application.
 
 2. Add the following request handler method to io.spring.cloud.samples.fortuneteller.hystrixdashboard.Application:
 
@@ -888,7 +951,7 @@ Using the Gradle Wrapper, build and package the application:
 $ ./gradlew assemble
 ```
 
-The Gradle Wrapper will automatically download the appropriate version of Gradle for this project along with all of Spring Music's dependencies. This may take a few moments.
+The Gradle Wrapper will automatically download the appropriate version of Gradle for this project along with all of Spring Music dependencies. This may take a few moments.
 
 3. Push the application!
 
@@ -1110,15 +1173,16 @@ As you can see from the information dialog, the application is now utilizing a P
 
 # Demo - Lab 6 - Monitoring Applications with Pivotal Cloud Foundry
 
-Cloud Foundry provides several built-in mechanisms that allow us to monitor our applications' state changes and behavior. Additionally, Cloud Foundry actively monitors the health of our application processes and will restart them should they crash. In this lab, we’ll explore a few of these mechanisms.
+Cloud Foundry provides several built-in mechanisms that allow us to monitor our applications state changes and behavior. Additionally, Cloud Foundry actively monitors the health of our application processes and will restart them should they crash. In this lab, we’ll explore a few of these mechanisms.
 
-Events
 Cloud Foundry only allows application configuration to be modified via its API. This gives application operators confidence that all changes to application configuration are known and auditable. It also reduces the number of causes that must be considered when problems arise.
+
+## Events
 
 All application configuration changes are recorded as events. These events can be viewed via the Cloud Foundry API, and viewing is facilitated via the CLI.
 
 Take a look at the events that have transpired so far for our deployment of cf-scale-boot:
-
+```bash
 $ cf events cf-scale-boot
 Getting events for app cf-scale-boot in org oreilly-class / space instructor as mstine@pivotal.io...
 
@@ -1129,6 +1193,7 @@ time                          event                 actor               descript
 2015-02-13T12:56:26.00-0600   audit.app.update      mstine@pivotal.io (3)
 2015-02-13T12:56:26.00-0600   audit.app.map-route   mstine@pivotal.io (2)
 2015-02-13T12:56:24.00-0600   audit.app.create      mstine@pivotal.io   instances: 1, memory: 512, state: STOPPED, environment_json: PRIVATE DATA HIDDEN (1)
+```
 Events are sorted newest to oldest, so we’ll start from the bottom. Here we see the app.create event, which created our application’s record and stored all of its metadata (e.g. memory: 512).
 
 The app.map-route event records the incoming request to assign a route to our application.
@@ -1142,12 +1207,13 @@ Remember scaling the application up? This app.update event records the metadata 
 And here’s the app.update event recording our scaling of the application back down with instances: 1.
 
 Let’s explicitly ask for the application to be stopped:
-
+```bash
 $ cf stop cf-scale-boot
 Stopping app cf-scale-boot in org oreilly-class / space instructor as mstine@pivotal.io...
 OK
+```
 Now, examine the additional app.update event:
-
+```bash
 $ cf events cf-scale-boot
 Getting events for app cf-scale-boot in org oreilly-class / space instructor as mstine@pivotal.io...
 
@@ -1169,10 +1235,7 @@ Starting app cf-scale-boot in org oreilly-class / space instructor as mstine@piv
 0 of 1 instances running, 1 starting
 1 of 1 instances running
 
-
 App started
-
-
 OK
 
 App cf-scale-boot was started using this command `JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre JAVA_OPTS="-Djava.io.tmpdir=$TMPDIR -XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh -Xmx382293K -Xms382293K -XX:MaxMetaspaceSize=64M -XX:MetaspaceSize=64M -Xss995K" SERVER_PORT=$PORT $PWD/.java-buildpack/spring_boot_cli/bin/spring run app.groovy`
@@ -1188,8 +1251,9 @@ last uploaded: Fri Feb 13 18:56:29 UTC 2015
 
      state     since                    cpu    memory           disk
 #0   running   2015-02-13 04:01:50 PM   0.0%   389.1M of 512M   128.9M of 1G
+```
 And again, view the additional app.update event:
-
+```bash
 $ cf events cf-scale-boot
 Getting events for app cf-scale-boot in org oreilly-class / space instructor as mstine@pivotal.io...
 
@@ -1202,23 +1266,27 @@ time                          event                 actor               descript
 2015-02-13T12:56:26.00-0600   audit.app.update      mstine@pivotal.io
 2015-02-13T12:56:26.00-0600   audit.app.map-route   mstine@pivotal.io
 2015-02-13T12:56:24.00-0600   audit.app.create      mstine@pivotal.io   instances: 1, memory: 512, state: STOPPED, environment_json: PRIVATE DATA HIDDEN
-Logs
+```
+## Logs
 One of the most important enablers of visibility into application behavior is logging. Effective management of logs has historically been very difficult. Cloud Foundry’s log aggregation components simplify log management by assuming responsibility for it. Application developers need only log all messages to either STDOUT or STDERR, and the platform will capture these messages.
 
 For Developers
 Application developers can view application logs using the CF CLI.
 
 Let’s view recent log messages for cf-scale-boot:
-
+```bash
 $ cf logs cf-scale-boot --recent
+```
 Here are two interesting subsets of one output from that command:
 
 Example 1. CF Component Logs
+```bash
 2015-02-13T14:45:39.40-0600 [RTR/0]      OUT cf-scale-boot-stockinged-rust.cfapps.io - [13/02/2015:20:45:39 +0000] "GET /css/bootstrap.min.css HTTP/1.1" 304 0 "http://cf-scale-boot-stockinged-rust.cfapps.io/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36" 10.10.66.88:50372 x_forwarded_for:"50.157.39.197" vcap_request_id:84cc1b7a-bb30-4355-7512-5adaf36ff767 response_time:0.013115764 app_id:7a428901-1691-4cce-b7f6-62d186c5cb55 (1)
 2015-02-13T14:45:39.40-0600 [RTR/1]      OUT cf-scale-boot-stockinged-rust.cfapps.io - [13/02/2015:20:45:39 +0000] "GET /img/LOGO_CloudFoundry_Large.png HTTP/1.1" 304 0 "http://cf-scale-boot-stockinged-rust.cfapps.io/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36" 10.10.66.88:24323 x_forwarded_for:"50.157.39.197" vcap_request_id:b3e2466b-6a41-4c6d-5b3d-0f70702c0ec1 response_time:0.010003444 app_id:7a428901-1691-4cce-b7f6-62d186c5cb55
 2015-02-13T15:04:33.09-0600 [API/1]      OUT Tried to stop app that never received a start event (2)
 2015-02-13T15:04:33.51-0600 [DEA/12]     OUT Starting app instance (index 2) with guid 7a428901-1691-4cce-b7f6-62d186c5cb55 (3)
 2015-02-13T15:04:33.71-0600 [DEA/4]      OUT Starting app instance (index 3) with guid 7a428901-1691-4cce-b7f6-62d186c5cb55
+```
 An “Apache-style” access log event from the (Go)Router
 
 An API log event that corresponds to an event as shown in cf events
@@ -1226,22 +1294,27 @@ An API log event that corresponds to an event as shown in cf events
 A DEA log event indicating the start of an application instance on that DEA.
 
 Example 2. Application Logs
+```bash
 2015-02-13T16:01:50.28-0600 [App/0]      OUT 2015-02-13 22:01:50.282  INFO 36 --- [       runner-0] o.s.b.a.e.jmx.EndpointMBeanExporter      : Located managed bean 'autoConfigurationAuditEndpoint': registering with JMX server as MBean [org.springframework.boot:type=Endpoint,name=autoConfigurationAuditEndpoint]
 2015-02-13T16:01:50.28-0600 [App/0]      OUT 2015-02-13 22:01:50.287  INFO 36 --- [       runner-0] o.s.b.a.e.jmx.EndpointMBeanExporter      : Located managed bean 'shutdownEndpoint': registering with JMX server as MBean [org.springframework.boot:type=Endpoint,name=shutdownEndpoint]
 2015-02-13T16:01:50.29-0600 [App/0]      OUT 2015-02-13 22:01:50.299  INFO 36 --- [       runner-0] o.s.b.a.e.jmx.EndpointMBeanExporter      : Located managed bean 'configurationPropertiesReportEndpoint': registering with JMX server as MBean [org.springframework.boot:type=Endpoint,name=configurationPropertiesReportEndpoint]
 2015-02-13T16:01:50.36-0600 [App/0]      OUT 2015-02-13 22:01:50.359  INFO 36 --- [       runner-0] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 61316/http
 2015-02-13T16:01:50.36-0600 [App/0]      OUT Started...
 2015-02-13T16:01:50.36-0600 [App/0]      OUT 2015-02-13 22:01:50.364  INFO 36 --- [       runner-0] o.s.boot.SpringApplication               : Started application in 6.906 seconds (JVM running for 15.65)
+```
 As you can see, Cloud Foundry’s log aggregation components capture both application logs and CF component logs relevant to your application. These events are properly interleaved based on time, giving you an accurate picture of events as they transpired across the system.
 
 To get a running “tail” of the application logs rather than a dump, simply type:
-
+```bash
 $ cf logs cf-scale-boot
+```
 You can try various things like refreshing the browser and triggering stop/start events to see logs being generated.
 
 ## Health
 
 1. Demonstrate scale demo application
+
+TODO
 
 # Lab 7 - Push Cloud Native Apps to Pivotal Cloud Foundry
 
@@ -1258,7 +1331,7 @@ $ cd $COURSE_HOME/labs/initial/fortune-teller
 ```bash
 $ mvn package
 ```
-Maven will automatically download all of Fortune Teller's dependencies. This may take a few moments.
+Maven will automatically download all of Fortune Teller dependencies. This may take a few moments.
 
 3. Push the Spring Cloud services:
 
