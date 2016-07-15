@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: java
+    tag: '8'
+
+params:
+  MAVEN_OPTS:
+  MAVEN_CONFIG:
+
+inputs:
+  - name: app
+outputs:
+  - name: build
+
+run:
+  path: sh
+  args: [
+     app/ci/tasks/build.sh
+  ]

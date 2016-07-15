@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: java
+    tag: '8'
+
+params:
+  MAVEN_OPTS:
+  MAVEN_CONFIG:
+
+inputs:
+  - name: app
+
+run:
+ path: ./mvnw
+ dir: app # mvnw requires working directory to be correct
+ args: [
+   clean,
+   test
+ ]
