@@ -8,7 +8,7 @@ image_resource:
     tag: '8'
 
 inputs:
-- name: ci
+#- name: ci
 
 run:
-  path: ./ci/task_build_fortune_teller_ui.sh
+  path: ./cloud-native-tour-repo/labs/initial/fortune-teller/fortune-teller-ui/ci/task_build_fortune_teller_ui.sh
