@@ -1,0 +1,71 @@
+---
+resources:
+- name: at-night
+  type: time
+  source:
+    start: 4:00 AM +0200
+    stop: 5:00 AM +0200
+
+- name: app
+  type: git
+  source:
+    uri: https://github.com/avasseur-pivotal/pcf-ers-demo.git
+
+- name: cf
+  type: cf
+  source:
+    api: {{cf-api}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-organization}}
+    space: {{cf-space}}
+    skip_cert_check: true
+
+jobs:
+- name: unit-test
+  serial: true
+  public: true
+  plan:
+    - get: app
+      trigger: true # TODO time based
+    - task: unit
+      file: app/ci/tasks/unit.yml
+      params: &MAVENPARAMS
+        MAVEN_OPTS: {{maven-opts}}
+        MAVEN_CONFIG: {{maven-config}}
+
+- name: deploy
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: at-night
+    trigger: true
+  - get: app
+    trigger: true
+    passed: [ unit-test ]
+  - task: build
+    file: app/ci/tasks/build.yml
+    params:
+      <<: *MAVENPARAMS
+  - put: cf
+    params:
+      manifest: app/manifest.yml
+      path: build/pcf-ers-demo-1.0.jar
+      current_app_name: attendees-concourse
+
+- name: deploy-v2
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: app
+    #trigger: true
+    #passed: [ unit-test ]
+  - task: build
+    file: app/ci/tasks/buildv2.yml
+    params:
+      <<: *MAVENPARAMS
+  - put: cf
+    params:
+      manifest: app/manifest-v2.yml
+      path: build/pcf-ers-demo-2.0.jar
+      current_app_name: attendees-concourse-v2

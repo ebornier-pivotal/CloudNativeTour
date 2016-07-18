@@ -1,0 +1,37 @@
+---
+resources:
+- name: at-night
+  type: time
+  source:
+    start: 4:00 AM +0200
+    stop: 5:00 AM +0200
+
+- name: cloud-native-tour-repo
+  type: git
+  source:
+    uri: https://github.com/ebornier-pivotal/CloudNativeTour.git
+
+- name: cf
+  type: cf
+  source:
+    api: {{cf-api}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-organization}}
+    space: {{cf-space}}
+    skip_cert_check: true
+
+jobs:
+
+- name: fortune-teller-ui
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: cloud-native-tour-repo
+    #trigger: true
+    #passed: [ unit-test ]
+  - task: build
+    file: cloud-native-tour-repo/labs/initial/fortune-teller/fortune-teller-ui/ci/task_build_fortune_teller_ui.yml
+#  - put: cf
+ #   params:
+  #    manifest: app/manifest.yml
