@@ -58,8 +58,8 @@ jobs:
     on_failure:
       put: send-an-email
       params:
-        subject: fortune-teller/create-netflix-services has failed
-        text: fortune-teller/create-netflix-services has failed 
+        subject: "fortune-teller/create-netflix-services has failed"
+        text: "fortune-teller/create-netflix-services has failed "
 
 - name: fortune-teller-fortune-service
   serial: true
