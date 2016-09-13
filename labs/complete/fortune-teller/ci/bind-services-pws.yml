@@ -10,4 +10,4 @@ inputs:
 - name: cloud-native-tour-repo
 
 run:
-  path: cloud-native-tour-repo/labs/complete/fortune-teller/ci/create-services.sh 
+  path: cloud-native-tour-repo/labs/complete/fortune-teller/ci/bind-services-pws.sh 
