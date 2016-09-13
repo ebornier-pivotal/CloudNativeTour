@@ -33,6 +33,12 @@ resources:
       from: {{email-from}}
       to: [ {{email-to}} ]
 
+resource_types:
+  - name: email
+    type: docker-image
+    source:
+      repository: pcfseceng/email-resource
+
 jobs:
 
 - name: create-netflix-services 
