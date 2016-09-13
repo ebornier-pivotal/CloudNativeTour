@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: lwieske/cloudfoundrycli 
+    repository: pcfservices/docker-concourse-cf-tools 
 
 inputs:
 - name: cloud-native-tour-repo
