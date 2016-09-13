@@ -5,7 +5,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import java.lang.Throwable;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @Service
@@ -23,10 +23,11 @@ public class FortuneService {
 
     @HystrixCommand(fallbackMethod = "fallbackFortune")
     public Fortune randomFortune() {
-        return restTemplate.getForObject("http://fortune/random", Fortune.class);
+	System.out.println("-------------call rest template");
+        return restTemplate.getForObject("https://fortune/random", Fortune.class);
     }
 
-    private Fortune fallbackFortune() {
+    private Fortune fallbackFortune(/*Throwable e*/) {
         return new Fortune(42L, "Your future is unclear.");
     }
 }

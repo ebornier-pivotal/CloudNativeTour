@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: java
+    tag: '8'
+
+inputs:
+- name: cloud-native-tour-repo
+outputs:
+- name: build 
+
+run:
+  path: cloud-native-tour-repo/fortune-teller-ui/ci/build.sh 

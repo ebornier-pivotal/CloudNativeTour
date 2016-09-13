@@ -2,7 +2,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-
+security:
+  basic:
+    enabled: false
 ---
 
 spring:
@@ -15,4 +17,5 @@ spring:
 spring:
   profiles: cloud
   jpa:
-    database: POSTGRESQL
+#    database: POSTGRESQL
+     database: HSQL

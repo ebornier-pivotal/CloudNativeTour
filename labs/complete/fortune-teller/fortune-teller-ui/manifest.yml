@@ -1,0 +1,10 @@
+---
+applications:
+- name: cnt-fortune-teller-ui
+  hosts:
+    - cnt-fortune-teller-ui
+  memory: 512MB
+  instances: 1
+  services:
+   - cnt-config-server
+  path: build/fortune-teller-ui-0.0.1-SNAPSHOT.jar

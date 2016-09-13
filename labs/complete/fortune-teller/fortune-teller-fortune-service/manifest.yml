@@ -1,0 +1,7 @@
+---
+applications:
+- name: cnt-fortune-teller-fortune-service
+  hosts:
+    - cnt-fortune-teller-fortune-service
+  memory: 512MB
+  instances: 1

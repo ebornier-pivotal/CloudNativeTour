@@ -1,0 +1,78 @@
+---
+resources:
+
+- name: cloud-native-tour-repo
+  type: git
+  source:
+    uri: https://github.com/ebornier-pivotal/CloudNativeTour.git 
+
+- name: cf
+  type: cf
+  source:
+    api: {{cf-api}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-organization}}
+    space: {{cf-space}}
+    skip_cert_check: true
+
+jobs:
+
+- name: create-netflix-services 
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: cloud-native-tour-repo
+    trigger: true
+  - task: create-services 
+    file: cloud-native-tour-repo/labs/complete/fortune-teller/ci/create-services.yml
+    params:
+      CF_API: {{cf-api}}
+      CF_USERNAME: {{cf-username}}
+      CF_PASSWORD: {{cf-password}}
+      CF_ORGANIZATION: {{cf-organization}}
+      CF_SPACE: {{cf-space}}
+
+- name: fortune-teller-fortune-service
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: cloud-native-tour-repo
+    trigger: true
+    passed: [ create-netflix-services ]
+  - task: build
+    file: cloud-native-tour-repo/labs/complete/fortune-teller/fortune-teller-fortune-service/ci/build.yml
+  - put: cf
+    params:
+      manifest: cloud-native-tour-repo/labs/complete/fortune-teller/fortune-teller-fortune-service/manifest.yml
+      path: build/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+
+- name: fortune-teller-ui
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: cloud-native-tour-repo
+    trigger: true
+    passed: [ create-netflix-services ]
+  - task: build
+    file: cloud-native-tour-repo/labs/complete/fortune-teller/fortune-teller-ui/ci/build.yml
+  - put: cf
+    params:
+      manifest: cloud-native-tour-repo/labs/complete/fortune-teller/fortune-teller-ui/manifest.yml
+      path: build/fortune-teller-ui-0.0.1-SNAPSHOT.jar
+
+- name: bind-app-to-netflix-services
+  serial: true
+  public: true # cf does not shows auth. logs so it is ok
+  plan:
+  - get: cloud-native-tour-repo
+    trigger: true
+    passed: [fortune-teller-fortune-service, fortune-teller-ui]
+  - task: bind-services
+    file: cloud-native-tour-repo/labs/complete/fortune-teller/ci/bind-services.yml
+    params:
+      CF_API: {{cf-api}}
+      CF_USERNAME: {{cf-username}}
+      CF_PASSWORD: {{cf-password}}
+      CF_ORGANIZATION: {{cf-organization}}
+      CF_SPACE: {{cf-space}}
