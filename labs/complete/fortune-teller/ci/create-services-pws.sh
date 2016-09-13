@@ -23,3 +23,6 @@ do
 done
 echo "Config server created"
 
+cf service cnt-config-server
+exit $?
+

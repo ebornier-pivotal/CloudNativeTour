@@ -39,8 +39,6 @@ jobs:
   serial: true
   public: true # cf does not shows auth. logs so it is ok
   plan:
-  - get: at-night
-    trigger: true
   - get: cloud-native-tour-repo
     trigger: true
   - task: create-services 
