@@ -25,7 +25,7 @@ jobs:
   - get: cloud-native-tour-repo
     trigger: true
   - task: create-services 
-    file: cloud-native-tour-repo/labs/complete/fortune-teller/ci/create-services.yml
+    file: cloud-native-tour-repo/labs/complete/fortune-teller/ci/create-services-pws.yml
     params:
       CF_API: {{cf-api}}
       CF_USERNAME: {{cf-username}}
@@ -69,7 +69,7 @@ jobs:
     trigger: true
     passed: [fortune-teller-fortune-service, fortune-teller-ui]
   - task: bind-services
-    file: cloud-native-tour-repo/labs/complete/fortune-teller/ci/bind-services.yml
+    file: cloud-native-tour-repo/labs/complete/fortune-teller/ci/bind-services-pws.yml
     params:
       CF_API: {{cf-api}}
       CF_USERNAME: {{cf-username}}
