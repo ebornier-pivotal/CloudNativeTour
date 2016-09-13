@@ -1,6 +1,12 @@
 ---
 resources:
 
+- name: at-night
+  type: time
+  source:
+    start: 4:00 AM +0200
+    stop: 5:00 AM +0200
+
 - name: cloud-native-tour-repo
   type: git
   source:
@@ -16,12 +22,25 @@ resources:
     space: {{cf-space}}
     skip_cert_check: true
 
+- name: send-an-email
+  type: email
+  source:
+    smtp:
+      host: {{smtp-host}}
+      port: {{smtp-port}}
+      username: {{smtp-username}}
+      password: {{smtp-password}}
+      from: {{email-from}}
+      to: [ {{email-to}} ]
+
 jobs:
 
 - name: create-netflix-services 
   serial: true
   public: true # cf does not shows auth. logs so it is ok
   plan:
+  - get: at-night
+    trigger: true
   - get: cloud-native-tour-repo
     trigger: true
   - task: create-services 
@@ -32,6 +51,11 @@ jobs:
       CF_PASSWORD: {{cf-password}}
       CF_ORGANIZATION: {{cf-organization}}
       CF_SPACE: {{cf-space}}
+    on_failure:
+      put: send-an-email
+      params:
+        subject: fortune-teller/create-netflix-services has failed
+        text: fortune-teller/create-netflix-services has failed 
 
 - name: fortune-teller-fortune-service
   serial: true
