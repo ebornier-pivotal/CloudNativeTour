@@ -30,8 +30,8 @@ resources:
       port: {{smtp-port}}
       username: {{smtp-username}}
       password: {{smtp-password}}
-      from: {{email-from}}
-      to: [ {{email-to}} ]
+    from: {{email-from}}
+    to: [ {{email-to}} ]
 
 resource_types:
   - name: email
