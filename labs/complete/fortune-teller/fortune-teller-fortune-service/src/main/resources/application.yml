@@ -5,6 +5,8 @@ spring:
 security:
   basic:
     enabled: false
+  ignored: /**
+    
 ---
 
 spring:

@@ -1,0 +1,26 @@
+---
+memory: 512M
+instances: 1
+buildpack: java_buildpack
+applications:
+- name: fortune-service
+  host: fortune-${random-word}
+  path: fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.1-SNAPSHOT.jar
+  services:
+  - fortune-db
+  - config-service
+  - service-registry
+  - scs-rabbit
+- name: fortune-ui
+  host: fortune-ui-${random-word}
+  path: fortune-teller-ui/target/fortune-teller-ui-0.0.1-SNAPSHOT.jar
+  services:
+  - config-service
+  - service-registry
+  - circuit-breaker
+env:
+  #SPRING_PROFILES_ACTIVE: pcf
+  CF_TARGET: https://api.run.pivotal.io
+  # see docs - https://docs.pivotal.io/spring-cloud-services/config-server/writing-client-applications.html
+  JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: { memory_sizes: { metaspace: 100m }}]'
+  # circuit breaker in SCS is secured and requires more memory

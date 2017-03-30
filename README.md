@@ -29,6 +29,12 @@
 
 <!-- tocstop -->
 
+For simple getting started guide you may also want to read:
+https://spring.io/guides/gs/centralized-configuration/
+https://spring.io/guides/gs/service-registration-and-discovery/
+https://spring.io/guides/gs/client-side-load-balancing/
+
+
 
 # Lab 1 - Getting Started with Spring Boot
 ## Bootstrap the Project
@@ -501,13 +507,14 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/mstine/config-repo.git
+          uri: https://github.com/ebornier-pivotal/CloudNativeTour-config.git
 ```
 
-These properties tell the Config Server to listen on port 8888 and to source its configuration from the Git repository found at https://github.com/mstine/config-repo.
+These properties tell the Config Server to listen on port 8888 and to source its configuration from the Git repository found at https://github.com/ebornier-pivotal/CloudNativeTour-config.git
+(you can also use https://github.com/mstine/config-repo ).
 
 3. Browse the file
-https://github.com/mstine/config-repo/blob/master/application.yml#L1-L18.
+https://github.com/ebornier-pivotal/CloudNativeTour-config/blob/master/application.yml
 These lines tell all applications using the cloud Spring profile how to connect to and register themselves with Eureka.
 ```yml
 eureka:
