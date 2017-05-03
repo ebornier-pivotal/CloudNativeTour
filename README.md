@@ -556,21 +556,6 @@ Read more at http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_quick
 curl -X GET http://localhost:8888/ui/default
 ```
 
-You can also run your `fortune-ui` application that will access the config server to resolve:
-```java
-@RestController
-public class UiController {
-
-  @Value("${greeting}")//from config server
-  String greeting;
-
-	@RequestMapping("/greeting")
-	public String getGreeting() {
-		return greeting;
-}
-
-```
-
 ## Eureka Server
 
 Next we’ll create a Eureka service registry using Spring Cloud Netflix. This server will act as the address book our UI application will use to locate the Fortune Service.
