@@ -5,9 +5,10 @@ cf cs p-service-registry standard service-registry
 
 cf cs p-circuit-breaker-dashboard standard circuit-breaker
 
-cf cs elephantsql turtle fortune-db
-#cf cs p-mysql 100mb-dev fortune-db
+#cf cs elephantsql turtle fortune-db
+cf cs p-mysql 100mb fortune-db
 
 #cf create-service cloudamqp lemur scs-rabbit
+cf create-service p-rabbitmq standard scs-rabbit
 
 

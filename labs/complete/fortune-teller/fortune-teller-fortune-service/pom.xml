@@ -5,18 +5,26 @@
 
 	<groupId>io.pivotal</groupId>
 	<artifactId>fortune-teller-fortune-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>fortune-teller-fortune-service</name>
 	<description>Demo project for Spring Boot</description>
 
 	<parent>
+		<groupId>io.spring.cloud.samples</groupId>
+		<artifactId>fortune-teller</artifactId>
+		<version>0.0.2-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+<!--
+	<parent>
 		<groupId>io.pivotal.spring.cloud</groupId>
 		<artifactId>spring-cloud-services-starter-parent</artifactId>
-		<version>1.0.2.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<version>1.6.0.RELEASE</version>
+		<relativePath /> &lt;!&ndash; lookup parent from repository &ndash;&gt;
 	</parent>
+-->
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
