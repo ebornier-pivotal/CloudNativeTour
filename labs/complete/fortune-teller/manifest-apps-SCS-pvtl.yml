@@ -4,26 +4,22 @@ instances: 1
 buildpack: java_buildpack_offline
 applications:
 - name: fortune-service
-  host: fortune-ppalex
-  #${random-word}
+  host: fortune-service-demo
   path: fortune-teller-fortune-service/target/fortune-teller-fortune-service-0.0.2-SNAPSHOT.jar
   services:
-  - fortune-db
+  #- fortune-db
   - config-service
   - service-registry
   - scs-rabbit
 - name: fortune-ui
-  host: fortune-ui-ppalex
-  #${random-word}
+  host: fortune-ui-demo
   path: fortune-teller-ui/target/fortune-teller-ui-0.0.2-SNAPSHOT.jar
   services:
   - config-service
   - service-registry
   - circuit-breaker
-#env:
-  #SPRING_PROFILES_ACTIVE: pcf
-#  CF_TARGET: https://api.run.pivotal.io
-#  TRUST_CERTS: api.sys.cloud.cf.vasseur.me
-  # see docs - https://docs.pivotal.io/spring-cloud-services/config-server/writing-client-applications.html
+
+# see docs - https://docs.pivotal.io/spring-cloud-services/config-server/writing-client-applications.html
+# env:
 #  JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: { memory_sizes: { metaspace: 100m }}]'
   # circuit breaker in SCS is secured and requires more memory

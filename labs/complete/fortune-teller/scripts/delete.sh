@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 cf delete fortune-service -f
 cf delete fortune-ui -f
 cf delete config-server -f

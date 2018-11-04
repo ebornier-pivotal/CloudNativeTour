@@ -1,14 +1,10 @@
-cf cs p-config-server standard config-service
-cf update-service -c '{"git": { "uri": "https://github.com/ebornier-pivotal/CloudNativeTour-config.git" }}' config-service
+#!/usr/bin/env bash
 
-cf cs p-service-registry standard service-registry
+cf create-service p-config-server standard config-service \
+  -c '{"git": { "uri": "https://github.com/ebornier-pivotal/CloudNativeTour-config.git" }}'
 
-cf cs p-circuit-breaker-dashboard standard circuit-breaker
+cf create-service p-service-registry standard service-registry
 
-#cf cs elephantsql turtle fortune-db
-cf cs p-mysql 100mb fortune-db
+cf create-service p-circuit-breaker-dashboard standard circuit-breaker
 
-#cf create-service cloudamqp lemur scs-rabbit
 cf create-service p-rabbitmq standard scs-rabbit
-
-

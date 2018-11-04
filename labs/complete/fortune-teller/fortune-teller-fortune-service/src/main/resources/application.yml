@@ -2,11 +2,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  sleuth:
+    sampler:
+      probability: 1
+
 security:
   basic:
     enabled: false
   ignored: /**
     
+
 ---
 
 spring:

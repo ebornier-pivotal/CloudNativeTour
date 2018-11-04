@@ -1,84 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.pivotal</groupId>
-	<artifactId>fortune-teller-ui</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
-	<packaging>jar</packaging>
+    <groupId>io.pivotal</groupId>
+    <artifactId>fortune-teller-ui</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-	<name>fortune-teller-ui</name>
-	<description>Demo project for Spring Boot</description>
+    <name>fortune-teller-ui</name>
+    <description>Demo project for Spring Boot</description>
 
-	<parent>
-		<groupId>io.spring.cloud.samples</groupId>
-		<artifactId>fortune-teller</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-<!--
-	<parent>
-		<groupId>io.pivotal.spring.cloud</groupId>
-		<artifactId>spring-cloud-services-starter-parent</artifactId>
-		<version>1.6.0.RELEASE</version>
-		<relativePath /> &lt;!&ndash; lookup parent from repository &ndash;&gt;
-	</parent>
--->
+    <parent>
+        <groupId>io.spring.cloud.samples</groupId>
+        <artifactId>fortune-teller</artifactId>
+        <version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <!--
+        <parent>
+            <groupId>io.pivotal.spring.cloud</groupId>
+            <artifactId>spring-cloud-services-starter-parent</artifactId>
+            <version>1.6.0.RELEASE</version>
+            <relativePath /> &lt;!&ndash; lookup parent from repository &ndash;&gt;
+        </parent>
+    -->
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.8</java.version>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+    </properties>
 
-	<dependencies>
- <dependency>
-      <groupId>io.pivotal.spring.cloud</groupId>
-      <artifactId>spring-cloud-services-starter-config-client</artifactId>
-    </dependency>
+    <dependencies>
 
-
-		<dependency>
-			<groupId>io.pivotal.spring.cloud</groupId>
-			<artifactId>spring-cloud-services-starter-service-registry</artifactId>
-		 </dependency>
-<dependency>                 
-       <groupId>io.pivotal.spring.cloud</groupId>
-                        <artifactId>spring-cloud-services-starter-circuit-breaker</artifactId>
-                </dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>io.pivotal.spring.cloud</groupId>
+            <artifactId>spring-cloud-services-starter-config-client</artifactId>
+        </dependency>
 
 
-	</dependencies>
+        <dependency>
+            <groupId>io.pivotal.spring.cloud</groupId>
+            <artifactId>spring-cloud-services-starter-service-registry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.pivotal.spring.cloud</groupId>
+            <artifactId>spring-cloud-services-starter-circuit-breaker</artifactId>
+        </dependency>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 
-	<repositories>
-		<repository>
-      <id>spring-release</id>
-      <url>https://repo.spring.io/libs-release</url>
-    </repository>
-	</repositories>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>spring-release</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
+    </repositories>
 
 
 </project>
